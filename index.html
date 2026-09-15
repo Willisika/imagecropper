@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perspective Crop</title>
+<title>Kuvan Suoristaja</title>
 <style>
   :root {
     --bg:        #1E1E2E;
@@ -193,7 +193,7 @@ function applyH(h, x, y) {
   return [(a * x + b * y + c) / denom, (d * x + e * y + f) / denom];
 }
 
-// Järjestää pisteet: vasen-ylä, oikea-ylä, oikea-ala, vasen-ala (kuten Pythonin order_points)
+// Järjestää pisteet: vasen-ylä, oikea-ylä, oikea-ala, vasen-ala
 function orderPoints(pts) {
   const s    = pts.map(p => p[0] + p[1]);
   const diff = pts.map(p => p[1] - p[0]);
