@@ -3,18 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kuvan Suoristaja</title>
+<title>Kuvan suoristus</title>
 <style>
+
+  /* #FFFFFF #EEF0F9 #CED1EA #A3A9D2 #727BB0 #444466*/
   :root {
-    --bg:        #1E1E2E;
-    --bg-bar:    #13131F;
-    --bg-panel:  #2A2A3E;
-    --btn-save:  #2E6B3E;
-    --btn-save-hover: #3A8A4F;
-    --fg-text:   #E0E0F0;
-    --fg-muted:  #888AAA;
+    --bg:        #EEF0F9;
+    --bg-bar:    #CED1EA;
+    --bg-panel:  #FFFFFF;
+    --btn-active: #EEF0F9;
+    --btn-disabled: #CED1EA;
+    --btn-hover: #A3A9D2;
+    --btn-save:  #685177;
+    --btn-save-hover: #FFFFFF;
+    --fg-text:   #313136;
+    --fg-text-bright: #FFFFFF;
+    --fg-muted:  #CED1EA;
     --fg-hint:   #444466;
-    --fg-bright: #FFFFFF;
+    --fg-dark: #313136;
     --line:      #00D4FF;
     --point:     #FF6B35;
     --active:    #FFDD00;
@@ -35,7 +41,7 @@
     height: 44px;
   }
   button {
-    background: var(--bg-panel);
+    background: var(--btn-active);
     color: var(--fg-text);
     border: none;
     border-radius: 4px;
@@ -44,15 +50,17 @@
     font-family: inherit;
     cursor: pointer;
   }
-  button:hover { background: #35354c; }
+  button:hover { 
+    background: var(--btn-hover); 
+    color: var(--fg-text-bright)}
   button.save {
     background: var(--btn-save);
-    color: var(--fg-bright);
+    color: var(--fg-text-bright);
     font-weight: 600;
   }
-  button.save:hover { background: var(--btn-save-hover); }
+  button.save:hover { background: var(--btn-save-hover); color: var(--fg-text)}
   button:disabled { opacity: 0.45; cursor: default; }
-  button:disabled:hover { background: var(--bg-panel); }
+  button:disabled:hover { background: var(--bg-panel); color: var(--fg-muted) }
   #status {
     margin-left: auto;
     color: var(--fg-muted);
@@ -74,7 +82,7 @@
     position: relative;
     min-width: 0;
   }
-  #canvas { display: block; cursor: crosshair; }
+  #canvas{ display: block;}
   #hint {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
@@ -83,7 +91,7 @@
     pointer-events: none;
   }
   #previewPanel {
-    width: 300px;
+    width: 25%;
     flex-shrink: 0;
     background: var(--bg-bar);
     border-radius: 6px;
@@ -97,7 +105,7 @@
     font-size: 13px;
     font-weight: 600;
     padding: 10px 12px;
-    border-bottom: 1px solid #2A2A3E;
+    border-bottom: 1px solid var(--fg-dark);
   }
   #previewBody {
     flex: 1;
@@ -193,7 +201,7 @@ function applyH(h, x, y) {
   return [(a * x + b * y + c) / denom, (d * x + e * y + f) / denom];
 }
 
-// Järjestää pisteet: vasen-ylä, oikea-ylä, oikea-ala, vasen-ala
+// Järjestää pisteet: vasen-ylä, oikea-ylä, oikea-ala, vasen-ala (kuten Pythonin order_points)
 function orderPoints(pts) {
   const s    = pts.map(p => p[0] + p[1]);
   const diff = pts.map(p => p[1] - p[0]);
@@ -317,6 +325,10 @@ function loadImage(file) {
 
 function renderCanvas() {
   if (!img) return;
+  if (points.length < 4)
+    canvas.style.cursor = "crosshair";
+  else 
+    canvas.style.cursor = "auto";
   resizeCanvasToWrap();
   const cw = canvas.width, ch = canvas.height;
   const [dw, dh, s] = fitToBox(srcW, srcH, cw - 20, ch - 20);
@@ -410,7 +422,9 @@ function pointerPos(e) {
 }
 
 canvas.addEventListener('pointerdown', (e) => {
-  if (!img) return;
+  if (!img) {
+    fileInput.click()
+  }
   const [x, y] = pointerPos(e);
 
   for (let i = 0; i < points.length; i++) {
@@ -426,6 +440,9 @@ canvas.addEventListener('pointerdown', (e) => {
   if (points.length < 4) {
     points.push([x, y]);
     drawOverlayOnly();
+    if (btnClear.disabled) {
+      btnClear.disabled = false
+    }
     const n = points.length;
     if (n < 4) {
       setStatus(`Piste ${n}/4 asetettu — klikkaa seuraava kulma`);
@@ -469,6 +486,7 @@ btnClear.addEventListener('click', () => {
   renderCanvas();
   resetPreview();
   btnSave.disabled = true;
+  btnClear.disabled = true;
   setStatus('Pisteet tyhjennetty — klikkaa 4 uutta kulmapistettä');
 });
 
